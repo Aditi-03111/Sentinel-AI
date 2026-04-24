@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* ── Theme variables ── */
+:root {
+  --bg-base:       #0a0a0f;
+  --bg-surface:    #0d0d14;
+  --bg-elevated:   #0f0f1a;
+  --bg-card:       #131320;
+  --border:        rgba(51,65,85,0.6);
+  --border-subtle: rgba(51,65,85,0.35);
+  --text-primary:  #e2e8f0;
+  --text-secondary:#94a3b8;
+  --text-muted:    #475569;
+  --input-bg:      rgba(30,30,50,0.8);
+  --scrollbar:     rgba(71,85,105,0.5);
+}
+
+html.light {
+  --bg-base:       #f1f5f9;
+  --bg-surface:    #ffffff;
+  --bg-elevated:   #f8fafc;
+  --bg-card:       #ffffff;
+  --border:        rgba(203,213,225,0.8);
+  --border-subtle: rgba(203,213,225,0.5);
+  --text-primary:  #0f172a;
+  --text-secondary:#475569;
+  --text-muted:    #94a3b8;
+  --input-bg:      rgba(248,250,252,0.95);
+  --scrollbar:     rgba(148,163,184,0.5);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    @apply antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s, color 0.2s;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar); }
