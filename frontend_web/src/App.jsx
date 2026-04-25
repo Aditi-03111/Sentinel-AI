@@ -9,7 +9,7 @@ import InsightsPanel from './components/InsightsPanel';
 import QuizMode from './components/QuizMode';
 import MindMap from './components/MindMap';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 class ErrorBoundary extends React.Component {
   state = { error: null };

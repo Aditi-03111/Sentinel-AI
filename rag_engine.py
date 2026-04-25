@@ -1,10 +1,14 @@
 import re
 import json
-import requests
+import os
+from groq import Groq
 from vector_store import query_collection
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "mistral"
+# ---------------------------------------------------------------------------
+# Groq client — set GROQ_API_KEY env var on Render
+# ---------------------------------------------------------------------------
+client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
+MODEL = "llama3-8b-8192"
 
 GRADE_PROFILES = {
     1:  "Explain like the student is 6 years old (Class 1). Use very simple words, short sentences, and fun real-life comparisons. Avoid all technical terms.",
@@ -22,12 +26,14 @@ GRADE_PROFILES = {
 }
 
 
-def _call_ollama(prompt: str) -> str:
-    response = requests.post(
-        OLLAMA_URL,
-        json={"model": MODEL, "prompt": prompt, "stream": False}
+def _call_groq(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1024,
+        temperature=0.3,
     )
-    return response.json()["response"]
+    return response.choices[0].message.content
 
 
 def generate_answer(question: str, grade: int = 10):
@@ -55,15 +61,14 @@ Question:
 
 Answer:"""
 
-    answer = _call_ollama(prompt)
+    answer = _call_groq(prompt)
     return answer, citations
 
 
 def generate_insights(full_text: str, page_count: int):
-    """Returns structured insights: summary, topics list, key_terms list, stats."""
     excerpt = full_text[:5000]
 
-    prompt = f"""You are an expert document analyst. Analyze the document and respond with ONLY valid JSON, no extra text.
+    prompt = f"""You are an expert document analyst. Analyze the document and respond with ONLY valid JSON, no extra text, no markdown fences.
 
 Return this exact JSON structure:
 {{
@@ -77,9 +82,7 @@ Document:
 
 JSON:"""
 
-    raw = _call_ollama(prompt)
-
-    # Extract JSON from response
+    raw = _call_groq(prompt)
     match = re.search(r'\{.*\}', raw, re.DOTALL)
     if match:
         try:
@@ -99,7 +102,6 @@ JSON:"""
         except json.JSONDecodeError:
             pass
 
-    # Fallback
     return {
         "summary": raw[:300],
         "topics": [],
@@ -109,19 +111,17 @@ JSON:"""
 
 
 def generate_mindmap(full_text: str):
-    """Extract concepts and relationships for a mind map."""
     excerpt = full_text[:5000]
 
     prompt = f"""You are a knowledge graph extractor. Analyze the document and extract a mind map.
 Respond with ONLY valid JSON, no extra text, no markdown fences.
 
 Rules:
-- "central" is the single root topic (the document's main subject, 2-4 words max)
-- "nodes" is a flat list of concept objects, each with "id" (short slug, no spaces) and "label" (display name)
-- "edges" is a list of connections, each with "source" (node id) and "target" (node id)
+- "central" is the single root topic (2-4 words max)
+- "nodes" is a flat list with "id" (short slug, no spaces) and "label" (display name)
+- "edges" is a list with "source" and "target" node ids
 - The central node id must be "root"
 - Include 8-14 concept nodes total
-- Connect related concepts to each other, not just to root
 - Keep labels short (1-4 words)
 
 Return exactly:
@@ -129,13 +129,10 @@ Return exactly:
   "central": "Main Topic",
   "nodes": [
     {{"id": "root", "label": "Main Topic"}},
-    {{"id": "node1", "label": "Concept One"}},
-    {{"id": "node2", "label": "Concept Two"}}
+    {{"id": "node1", "label": "Concept One"}}
   ],
   "edges": [
-    {{"source": "root", "target": "node1"}},
-    {{"source": "root", "target": "node2"}},
-    {{"source": "node1", "target": "node2"}}
+    {{"source": "root", "target": "node1"}}
   ]
 }}
 
@@ -144,12 +141,11 @@ Document:
 
 JSON:"""
 
-    raw = _call_ollama(prompt)
+    raw = _call_groq(prompt)
     match = re.search(r'\{.*\}', raw, re.DOTALL)
     if match:
         try:
             data = json.loads(match.group())
-            # Validate structure
             if "nodes" in data and "edges" in data:
                 return data
         except json.JSONDecodeError:
@@ -158,14 +154,13 @@ JSON:"""
 
 
 def generate_quiz(full_text: str, grade: int = 10, num_questions: int = 5):
-    """Generate MCQ quiz questions from the document."""
     excerpt = full_text[:4000]
     grade_instruction = GRADE_PROFILES[max(1, min(12, grade))]
 
     prompt = f"""You are a quiz generator. {grade_instruction}
 
 Generate {num_questions} multiple choice questions based on the document below.
-Respond with ONLY valid JSON, no extra text.
+Respond with ONLY valid JSON, no extra text, no markdown fences.
 
 Return this exact JSON structure:
 {{
@@ -184,7 +179,7 @@ Document:
 
 JSON:"""
 
-    raw = _call_ollama(prompt)
+    raw = _call_groq(prompt)
     match = re.search(r'\{.*\}', raw, re.DOTALL)
     if match:
         try:
