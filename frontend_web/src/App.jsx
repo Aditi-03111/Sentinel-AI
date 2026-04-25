@@ -60,6 +60,7 @@ function App() {
   const [prefill, setPrefill] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quizExpanded, setQuizExpanded] = useState(false);
+  const [chatExpanded, setChatExpanded] = useState(false);
 
   const handleFileUpload = async (file) => {
     setIsUploading(true);
@@ -170,7 +171,7 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 w-full">
         <Navbar
           activeTab={activeTab}
-          onTabChange={(tab) => { setActiveTab(tab); if (tab !== 'quiz') setQuizExpanded(false); }}
+          onTabChange={(tab) => { setActiveTab(tab); if (tab !== 'quiz') setQuizExpanded(false); if (tab !== 'chat') setChatExpanded(false); }}
           grade={grade}
           onGradeChange={setGrade}
           onGenerateQuiz={handleGenerateQuiz}
@@ -185,7 +186,7 @@ function App() {
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            {(insights || isLoadingInsights) && !quizExpanded && (
+            {(insights || isLoadingInsights) && !quizExpanded && !chatExpanded && (
               <InsightsPanel insights={insights} isLoading={isLoadingInsights} />
             )}
 
@@ -203,6 +204,8 @@ function App() {
                   isGenerating={isGenerating}
                   prefill={prefill}
                   onPrefillConsumed={() => setPrefill('')}
+                  isExpanded={chatExpanded}
+                  onToggleExpand={() => setChatExpanded(v => !v)}
                 />
               </>
             ) : activeTab === 'quiz' ? (
@@ -230,8 +233,8 @@ function App() {
             )}
           </div>
 
-          {/* PDF viewer — desktop only, hidden when quiz is expanded */}
-          {!quizExpanded && (
+          {/* PDF viewer — desktop only, hidden when quiz or chat is expanded */}
+          {!quizExpanded && !chatExpanded && (
             <PDFViewer
               pdfUrl={activePdfUrl}
               activePage={activePage}

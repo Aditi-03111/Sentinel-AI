@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Maximize2, Minimize2 } from 'lucide-react';
 
-export default function ChatInput({ onSendMessage, isGenerating, prefill, onPrefillConsumed }) {
+export default function ChatInput({ onSendMessage, isGenerating, prefill, onPrefillConsumed, isExpanded, onToggleExpand }) {
     const [input, setInput] = useState('');
 
     useEffect(() => {
@@ -36,6 +36,14 @@ export default function ChatInput({ onSendMessage, isGenerating, prefill, onPref
                     <button type="submit" disabled={!input.trim() || isGenerating}
                         className="shrink-0 rounded-xl bg-indigo-600 text-white disabled:opacity-40 hover:bg-indigo-500 transition-colors h-[40px] w-[40px] flex items-center justify-center m-1 group">
                         <Send className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                    </button>
+                    <button type="button" onClick={onToggleExpand}
+                        title={isExpanded ? 'Minimize' : 'Maximize'}
+                        className="shrink-0 rounded-xl border transition-all hover:border-indigo-500/50 h-[40px] w-[40px] flex items-center justify-center m-1"
+                        style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)' }}>
+                        {isExpanded
+                            ? <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
+                            : <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />}
                     </button>
                 </form>
                 <p className="text-center text-[10px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
