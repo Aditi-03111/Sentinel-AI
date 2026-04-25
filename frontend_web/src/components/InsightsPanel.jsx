@@ -39,7 +39,7 @@ function SectionBox({ icon: Icon, iconColor, label, children }) {
                 <Icon className={`w-3.5 h-3.5 shrink-0 ${iconColor}`} />
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${iconColor}`}>{label}</span>
             </div>
-            <div className="p-3 overflow-y-auto" style={{ maxHeight: '220px' }}>
+            <div className="p-3 overflow-y-auto" style={{ maxHeight: '220px', color: 'var(--text-secondary)' }}>
                 {children}
             </div>
         </div>
@@ -71,7 +71,7 @@ export default function InsightsPanel({ insights, isLoading }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div className="flex items-center gap-2.5">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                    <span className="text-[11px] font-bold text-slate-200 uppercase tracking-widest">Document Insights</span>
+                    <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Document Insights</span>
                     {isLoading && <Loader2 className="w-3 h-3 text-indigo-400 animate-spin" />}
                     {insights && !isLoading && (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold tracking-wide">
@@ -80,8 +80,8 @@ export default function InsightsPanel({ insights, isLoading }) {
                     )}
                 </div>
                 {collapsed
-                    ? <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                    : <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+                    ? <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+                    : <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
                 }
             </button>
 
@@ -103,7 +103,7 @@ export default function InsightsPanel({ insights, isLoading }) {
 
                                 {/* Summary box */}
                                 <SectionBox icon={BookOpen} iconColor="text-indigo-400" label="Summary">
-                                    <p className="text-[11px] text-slate-300 leading-relaxed">{insights.summary}</p>
+                                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{insights.summary}</p>
                                 </SectionBox>
 
                                 {/* Topics box */}
@@ -127,17 +127,18 @@ export default function InsightsPanel({ insights, isLoading }) {
                                 {/* Stats box */}
                                 <SectionBox icon={BarChart2} iconColor="text-amber-400" label="Stats">
                                     <div className="flex flex-col gap-2">
-                                        <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 p-3 flex flex-col items-center justify-center">
-                                            <span className="text-3xl font-bold text-slate-100 leading-none">{insights.stats.pages}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-slate-500 mt-1 font-semibold">Pages</span>
+                                        <div className="rounded-xl border p-3 flex flex-col items-center justify-center"
+                                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}>
+                                            <span className="text-3xl font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{insights.stats.pages}</span>
+                                            <span className="text-[10px] uppercase tracking-widest mt-1 font-semibold" style={{ color: 'var(--text-muted)' }}>Pages</span>
                                         </div>
                                         <div className="rounded-xl border border-violet-500/30 bg-violet-950/30 p-3 flex flex-col items-center justify-center">
                                             <span className="text-2xl font-bold text-violet-300 leading-none">{insights.stats.topics}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-violet-500 mt-1 font-semibold">Topics</span>
+                                            <span className="text-[10px] uppercase tracking-widest text-violet-400 mt-1 font-semibold">Topics</span>
                                         </div>
                                         <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3 flex flex-col items-center justify-center">
                                             <span className="text-2xl font-bold text-emerald-300 leading-none">{insights.stats.terms}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-emerald-500 mt-1 font-semibold">Terms</span>
+                                            <span className="text-[10px] uppercase tracking-widest text-emerald-400 mt-1 font-semibold">Terms</span>
                                         </div>
                                     </div>
                                 </SectionBox>
@@ -146,7 +147,7 @@ export default function InsightsPanel({ insights, isLoading }) {
                         ) : (
                             <div className="p-4 grid grid-cols-4 gap-3">
                                 <SkeletonBox /><SkeletonBox /><SkeletonBox /><SkeletonBox />
-                                <div className="col-span-4 text-center text-xs text-slate-600 -mt-1 pb-1">
+                                <div className="col-span-4 text-center text-xs -mt-1 pb-1" style={{ color: 'var(--text-muted)' }}>
                                     Upload a PDF to generate insights
                                 </div>
                             </div>
