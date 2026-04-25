@@ -2,19 +2,21 @@ import React from 'react';
 import { FileText, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function PDFViewer({ pdfUrl, activePage, onClose, className = '' }) {
+export default function PDFViewer({ pdfUrl, activePage, onClose }) {
     if (!pdfUrl) return null;
 
-    const viewUrl = activePage ? `${pdfUrl}#page=${activePage}` : pdfUrl;
+    // #view=FitH fits the PDF width to the viewer, page= jumps to citation
+    const viewUrl = `${pdfUrl}#view=FitH&toolbar=1${activePage ? `&page=${activePage}` : ''}`;
 
     return (
         <motion.div
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 340, opacity: 1 }}
+            animate={{ width: 360, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            className={`w-[340px] h-full flex-col z-10 shrink-0 shadow-2xl border-l transition-colors hidden md:flex`}
+            className="w-[360px] h-full flex-col z-10 shrink-0 shadow-2xl border-l transition-colors hidden md:flex"
             style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
         >
+            {/* Header */}
             <div className="h-11 border-b flex items-center justify-between px-4 shrink-0"
                 style={{ borderColor: 'var(--border)' }}>
                 <div className="flex items-center gap-2">
@@ -27,16 +29,19 @@ export default function PDFViewer({ pdfUrl, activePage, onClose, className = '' 
                     )}
                 </div>
                 <button onClick={onClose}
-                    className="p-1 rounded-md hover:bg-slate-800 text-slate-500 hover:text-slate-200 transition-colors">
+                    className="p-1 rounded-md text-slate-500 hover:text-slate-200 transition-colors">
                     <X className="w-3.5 h-3.5" />
                 </button>
             </div>
 
-            <div className="flex-1 p-1.5 min-h-0" style={{ background: 'var(--bg-base)' }}>
+            {/* PDF iframe — fills remaining height exactly */}
+            <div className="flex-1 overflow-hidden" style={{ background: 'var(--bg-base)' }}>
                 <iframe
+                    key={viewUrl}
                     src={viewUrl}
-                    className="w-full h-full rounded-lg border border-slate-800/60 bg-white"
+                    className="w-full h-full border-0"
                     title="PDF Viewer"
+                    style={{ display: 'block' }}
                 />
             </div>
         </motion.div>
