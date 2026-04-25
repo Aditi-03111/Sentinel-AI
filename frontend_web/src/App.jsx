@@ -58,6 +58,7 @@ function App() {
 
   // Suggested prompt prefill
   const [prefill, setPrefill] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleFileUpload = async (file) => {
     setIsUploading(true);
@@ -160,9 +161,12 @@ function App() {
         isUploading={isUploading}
         uploadedDoc={uploadedDoc}
         onFileUpload={handleFileUpload}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main content — full width on mobile */}
+      <div className="flex-1 flex flex-col min-w-0 w-full">
         <Navbar
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -173,11 +177,11 @@ function App() {
           hasDocument={!!uploadedDoc}
           isSummarizing={isLoadingQuiz}
           isMindMapping={isLoadingMindmap}
+          onMenuOpen={() => setMobileMenuOpen(true)}
         />
 
-        <div className="flex-1 flex min-h-0">
-          <div className="flex-1 flex flex-col min-w-0">
-            {/* Insights panel — only show after a doc has been uploaded */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {(insights || isLoadingInsights) && (
               <InsightsPanel insights={insights} isLoading={isLoadingInsights} />
             )}
@@ -221,6 +225,7 @@ function App() {
             )}
           </div>
 
+          {/* PDF viewer — desktop only */}
           <PDFViewer
             pdfUrl={activePdfUrl}
             activePage={activePage}

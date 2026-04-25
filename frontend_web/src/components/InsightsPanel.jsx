@@ -1,30 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Tag, BookOpen, BarChart2, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+function useIsLight() {
+    const [isLight, setIsLight] = useState(document.documentElement.classList.contains('light'));
+    useEffect(() => {
+        const obs = new MutationObserver(() => setIsLight(document.documentElement.classList.contains('light')));
+        obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => obs.disconnect();
+    }, []);
+    return isLight;
+}
+
 const TOPIC_STYLES = [
-    { bg: 'bg-indigo-950',  border: 'border-indigo-500',  text: 'text-indigo-300' },
-    { bg: 'bg-purple-950',  border: 'border-purple-500',  text: 'text-purple-300' },
-    { bg: 'bg-cyan-950',    border: 'border-cyan-500',    text: 'text-cyan-300' },
-    { bg: 'bg-violet-950',  border: 'border-violet-500',  text: 'text-violet-300' },
-    { bg: 'bg-blue-950',    border: 'border-blue-500',    text: 'text-blue-300' },
-    { bg: 'bg-fuchsia-950', border: 'border-fuchsia-500', text: 'text-fuchsia-300' },
+    { darkBg: '#1e1b4b', darkBorder: '#6366f1', darkText: '#a5b4fc', lightBg: '#ede9fe', lightBorder: '#a78bfa', lightText: '#3730a3' },
+    { darkBg: '#1a1040', darkBorder: '#a855f7', darkText: '#d8b4fe', lightBg: '#f3e8ff', lightBorder: '#c084fc', lightText: '#581c87' },
+    { darkBg: '#0c2a3a', darkBorder: '#06b6d4', darkText: '#67e8f9', lightBg: '#ecfeff', lightBorder: '#22d3ee', lightText: '#164e63' },
+    { darkBg: '#1a0a2e', darkBorder: '#8b5cf6', darkText: '#c4b5fd', lightBg: '#f5f3ff', lightBorder: '#8b5cf6', lightText: '#4c1d95' },
+    { darkBg: '#0a1a3a', darkBorder: '#3b82f6', darkText: '#93c5fd', lightBg: '#eff6ff', lightBorder: '#60a5fa', lightText: '#1e3a8a' },
+    { darkBg: '#2a0a2e', darkBorder: '#d946ef', darkText: '#f0abfc', lightBg: '#fdf4ff', lightBorder: '#e879f9', lightText: '#701a75' },
 ];
 
 const TERM_STYLES = [
-    { bg: 'bg-teal-950',    border: 'border-teal-500',    text: 'text-teal-300' },
-    { bg: 'bg-emerald-950', border: 'border-emerald-600', text: 'text-emerald-300' },
-    { bg: 'bg-sky-950',     border: 'border-sky-500',     text: 'text-sky-300' },
-    { bg: 'bg-green-950',   border: 'border-green-600',   text: 'text-green-300' },
-    { bg: 'bg-lime-950',    border: 'border-lime-600',    text: 'text-lime-300' },
-    { bg: 'bg-amber-950',   border: 'border-amber-500',   text: 'text-amber-300' },
-    { bg: 'bg-orange-950',  border: 'border-orange-600',  text: 'text-orange-300' },
-    { bg: 'bg-rose-950',    border: 'border-rose-600',    text: 'text-rose-300' },
+    { darkBg: '#0a2a28', darkBorder: '#14b8a6', darkText: '#5eead4', lightBg: '#f0fdfa', lightBorder: '#2dd4bf', lightText: '#134e4a' },
+    { darkBg: '#0a2a1a', darkBorder: '#10b981', darkText: '#6ee7b7', lightBg: '#ecfdf5', lightBorder: '#34d399', lightText: '#064e3b' },
+    { darkBg: '#0a1e2e', darkBorder: '#0ea5e9', darkText: '#7dd3fc', lightBg: '#f0f9ff', lightBorder: '#38bdf8', lightText: '#0c4a6e' },
+    { darkBg: '#0a2a10', darkBorder: '#22c55e', darkText: '#86efac', lightBg: '#f0fdf4', lightBorder: '#4ade80', lightText: '#14532d' },
+    { darkBg: '#1a2a0a', darkBorder: '#84cc16', darkText: '#bef264', lightBg: '#f7fee7', lightBorder: '#a3e635', lightText: '#365314' },
+    { darkBg: '#2a1a0a', darkBorder: '#f59e0b', darkText: '#fcd34d', lightBg: '#fffbeb', lightBorder: '#fbbf24', lightText: '#78350f' },
+    { darkBg: '#2a100a', darkBorder: '#f97316', darkText: '#fdba74', lightBg: '#fff7ed', lightBorder: '#fb923c', lightText: '#7c2d12' },
+    { darkBg: '#2a0a10', darkBorder: '#f43f5e', darkText: '#fda4af', lightBg: '#fff1f2', lightBorder: '#fb7185', lightText: '#881337' },
 ];
 
 function Chip({ label, style }) {
+    const isLight = useIsLight();
+    const s = isLight
+        ? { background: style.lightBg, borderColor: style.lightBorder, color: style.lightText }
+        : { background: style.darkBg, borderColor: style.darkBorder, color: style.darkText };
     return (
-        <div className={`px-3 py-1.5 rounded-xl border ${style.bg} ${style.border} ${style.text} text-[11px] font-semibold leading-snug break-words w-full`}>
+        <div className="px-3 py-1.5 rounded-xl border text-[11px] font-semibold leading-snug break-words w-full" style={s}>
             {label}
         </div>
     );
@@ -95,11 +109,11 @@ export default function InsightsPanel({ insights, isLoading }) {
                         transition={{ duration: 0.2 }}
                     >
                         {isLoading ? (
-                            <div className="p-4 grid grid-cols-4 gap-3">
+                            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <SkeletonBox /><SkeletonBox /><SkeletonBox /><SkeletonBox />
                             </div>
                         ) : insights ? (
-                            <div className="p-4 grid grid-cols-4 gap-3 items-start">
+                            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
 
                                 {/* Summary box */}
                                 <SectionBox icon={BookOpen} iconColor="text-indigo-400" label="Summary">
@@ -145,7 +159,7 @@ export default function InsightsPanel({ insights, isLoading }) {
 
                             </div>
                         ) : (
-                            <div className="p-4 grid grid-cols-4 gap-3">
+                            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <SkeletonBox /><SkeletonBox /><SkeletonBox /><SkeletonBox />
                                 <div className="col-span-4 text-center text-xs -mt-1 pb-1" style={{ color: 'var(--text-muted)' }}>
                                     Upload a PDF to generate insights

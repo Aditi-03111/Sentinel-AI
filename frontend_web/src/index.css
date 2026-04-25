@@ -16,17 +16,17 @@
 }
 
 html.light {
-  --bg-base:       #f1f5f9;
+  --bg-base:       #eef2ff;
   --bg-surface:    #ffffff;
-  --bg-elevated:   #f8fafc;
+  --bg-elevated:   #f5f7ff;
   --bg-card:       #ffffff;
-  --border:        rgba(203,213,225,0.8);
-  --border-subtle: rgba(203,213,225,0.5);
-  --text-primary:  #0f172a;
-  --text-secondary:#334155;
-  --text-muted:    #64748b;
-  --input-bg:      rgba(248,250,252,0.95);
-  --scrollbar:     rgba(148,163,184,0.5);
+  --border:        rgba(199,210,254,0.9);
+  --border-subtle: rgba(199,210,254,0.5);
+  --text-primary:  #1e1b4b;
+  --text-secondary:#3730a3;
+  --text-muted:    #818cf8;
+  --input-bg:      #f5f7ff;
+  --scrollbar:     rgba(165,180,252,0.5);
 }
 
 @layer base {
@@ -37,6 +37,19 @@ html.light {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     transition: background-color 0.2s, color 0.2s;
   }
+}
+
+/* Light mode chip overrides — keep chips readable */
+html.light .chip-topic {
+  background: #ede9fe !important;
+  border-color: #a78bfa !important;
+  color: #4c1d95 !important;
+}
+
+html.light .chip-term {
+  background: #d1fae5 !important;
+  border-color: #34d399 !important;
+  color: #064e3b !important;
 }
 
 /* Scrollbar */

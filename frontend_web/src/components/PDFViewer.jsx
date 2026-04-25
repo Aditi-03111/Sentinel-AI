@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function PDFViewer({ pdfUrl, activePage, onClose }) {
+export default function PDFViewer({ pdfUrl, activePage, onClose, className = '' }) {
     if (!pdfUrl) return null;
 
     const viewUrl = activePage ? `${pdfUrl}#page=${activePage}` : pdfUrl;
@@ -12,7 +12,7 @@ export default function PDFViewer({ pdfUrl, activePage, onClose }) {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 340, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            className="w-[340px] h-full flex flex-col z-10 shrink-0 shadow-2xl border-l transition-colors"
+            className={`w-[340px] h-full flex-col z-10 shrink-0 shadow-2xl border-l transition-colors hidden md:flex`}
             style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
         >
             <div className="h-11 border-b flex items-center justify-between px-4 shrink-0"
