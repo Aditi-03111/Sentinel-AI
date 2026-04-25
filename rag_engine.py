@@ -8,7 +8,7 @@ from vector_store import query_collection
 # Groq client — set GROQ_API_KEY env var on Render
 # ---------------------------------------------------------------------------
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
-MODEL = "llama3-8b-8192"
+MODEL = "llama-3.1-8b-instant"
 
 GRADE_PROFILES = {
     1:  "Explain like the student is 6 years old (Class 1). Use very simple words, short sentences, and fun real-life comparisons. Avoid all technical terms.",

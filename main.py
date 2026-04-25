@@ -2,6 +2,9 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from pdf_utils import extract_text_from_pdf
 from vector_store import add_documents
