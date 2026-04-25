@@ -11,6 +11,28 @@ import MindMap from './components/MindMap';
 
 const API_BASE_URL = 'http://localhost:8000';
 
+class ErrorBoundary extends React.Component {
+  state = { error: null };
+  static getDerivedStateFromError(e) { return { error: e }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex-1 flex items-center justify-center p-8 text-center">
+          <div>
+            <p className="text-red-400 font-semibold mb-2">Something went wrong</p>
+            <p className="text-xs text-slate-500 font-mono">{this.state.error.message}</p>
+            <button onClick={() => this.setState({ error: null })}
+              className="mt-4 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-500">
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('chat');
   const [messages, setMessages] = useState([]);
@@ -166,19 +188,23 @@ function App() {
                 />
               </>
             ) : activeTab === 'quiz' ? (
-              <QuizMode
-                quiz={quiz}
-                isLoading={isLoadingQuiz}
-                onRegenerate={handleGenerateQuiz}
-                grade={grade}
-              />
+              <ErrorBoundary>
+                <QuizMode
+                  quiz={quiz}
+                  isLoading={isLoadingQuiz}
+                  onRegenerate={handleGenerateQuiz}
+                  grade={grade}
+                />
+              </ErrorBoundary>
             ) : (
-              <MindMap
-                mindmap={mindmap}
-                isLoading={isLoadingMindmap}
-                onGenerate={handleGenerateMindmap}
-                hasDocument={!!uploadedDoc}
-              />
+              <ErrorBoundary>
+                <MindMap
+                  mindmap={mindmap}
+                  isLoading={isLoadingMindmap}
+                  onGenerate={handleGenerateMindmap}
+                  hasDocument={!!uploadedDoc}
+                />
+              </ErrorBoundary>
             )}
           </div>
 
