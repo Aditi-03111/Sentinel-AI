@@ -5,6 +5,8 @@ import {
     Controls,
     useNodesState,
     useEdgesState,
+    useReactFlow,
+    ReactFlowProvider,
     MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -93,7 +95,7 @@ function buildLayout(rawNodes, rawEdges) {
     return { nodes, edges };
 }
 
-export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument, isExpanded, onToggleExpand }) {
+function MindMapInner({ mindmap, isExpanded, onToggleExpand }) {
     const { nodes: initNodes, edges: initEdges } = useMemo(
         () => mindmap ? buildLayout(mindmap.nodes, mindmap.edges) : { nodes: [], edges: [] },
         [mindmap]
@@ -101,12 +103,51 @@ export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument, i
 
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const { fitView } = useReactFlow();
 
     useEffect(() => {
         setNodes(initNodes);
         setEdges(initEdges);
+        // fitView after nodes are painted
+        setTimeout(() => fitView({ padding: 0.15, duration: 400 }), 50);
     }, [initNodes, initEdges]);
 
+    return (
+        <div className="flex-1 relative" style={{ minHeight: 0 }}>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                fitView
+                fitViewOptions={{ padding: 0.15 }}
+                minZoom={0.2}
+                maxZoom={2}
+                style={{ background: 'var(--bg-base)', width: '100%', height: '100%' }}
+                proOptions={{ hideAttribution: true }}
+            >
+                <Background color="#1e1e2e" gap={24} size={1} />
+                <Controls style={{ background: '#1e1e2e', border: '1px solid #334155', borderRadius: '12px' }} />
+            </ReactFlow>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                <div className="px-4 py-1.5 rounded-full border backdrop-blur-sm text-xs font-medium pointer-events-none"
+                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+                    {mindmap.central || 'Mind Map'} · {mindmap.nodes.length} concepts
+                </div>
+                <button onClick={onToggleExpand}
+                    title={isExpanded ? 'Minimize' : 'Maximize'}
+                    className="w-7 h-7 rounded-full border backdrop-blur-sm flex items-center justify-center hover:border-indigo-500/50 transition-colors"
+                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+                    {isExpanded
+                        ? <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
+                        : <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument, isExpanded, onToggleExpand }) {
     if (isLoading) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center gap-4" style={{ color: 'var(--text-secondary)' }}>
@@ -140,36 +181,8 @@ export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument, i
     }
 
     return (
-        <div className="flex-1 relative">
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                fitView
-                fitViewOptions={{ padding: 0.2 }}
-                minZoom={0.3}
-                maxZoom={2}
-                style={{ background: 'var(--bg-base)' }}
-                proOptions={{ hideAttribution: true }}
-            >
-                <Background color="#1e1e2e" gap={24} size={1} />
-                <Controls style={{ background: '#1e1e2e', border: '1px solid #334155', borderRadius: '12px' }} />
-            </ReactFlow>
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                <div className="px-4 py-1.5 rounded-full border backdrop-blur-sm text-xs font-medium pointer-events-none"
-                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                    {mindmap.central || 'Mind Map'} · {mindmap.nodes.length} concepts
-                </div>
-                <button onClick={onToggleExpand}
-                    title={isExpanded ? 'Minimize' : 'Maximize'}
-                    className="w-7 h-7 rounded-full border backdrop-blur-sm flex items-center justify-center hover:border-indigo-500/50 transition-colors"
-                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
-                    {isExpanded
-                        ? <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
-                        : <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />}
-                </button>
-            </div>
-        </div>
+        <ReactFlowProvider>
+            <MindMapInner mindmap={mindmap} isExpanded={isExpanded} onToggleExpand={onToggleExpand} />
+        </ReactFlowProvider>
     );
 }
