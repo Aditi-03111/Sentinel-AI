@@ -1,11 +1,11 @@
 import React from 'react';
-import { MessageSquare, HelpCircle, GraduationCap, Settings, GitBranch, Sun, Moon, Menu } from 'lucide-react';
+import { MessageSquare, HelpCircle, GraduationCap, Settings, GitBranch, Sun, Moon, Menu, Maximize2, Minimize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../ThemeContext';
 
 const GRADE_LABELS = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `Class ${i + 1}` }));
 
-export default function Navbar({ activeTab, onTabChange, grade, onGradeChange, onGenerateQuiz, onGenerateMindMap, hasDocument, isSummarizing, isMindMapping, onMenuOpen }) {
+export default function Navbar({ activeTab, onTabChange, grade, onGradeChange, onGenerateQuiz, onGenerateMindMap, hasDocument, isSummarizing, isMindMapping, onMenuOpen, isQuizExpanded, onToggleQuizExpand }) {
     const { theme, toggle } = useTheme();
     const isDark = theme === 'dark';
 
@@ -42,11 +42,21 @@ export default function Navbar({ activeTab, onTabChange, grade, onGradeChange, o
 
             {/* Action buttons */}
             {activeTab === 'quiz' && hasDocument && (
-                <button onClick={onGenerateQuiz} disabled={isSummarizing}
-                    className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-[11px] font-semibold transition-colors shrink-0">
-                    {isSummarizing ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <HelpCircle className="w-3.5 h-3.5" />}
-                    <span className="hidden sm:inline">Generate Quiz</span>
-                </button>
+                <>
+                    <button onClick={onGenerateQuiz} disabled={isSummarizing}
+                        className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-[11px] font-semibold transition-colors shrink-0">
+                        {isSummarizing ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <HelpCircle className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline">Generate Quiz</span>
+                    </button>
+                    <button onClick={onToggleQuizExpand}
+                        title={isQuizExpanded ? 'Minimize' : 'Maximize'}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center border transition-all hover:border-indigo-500/50 shrink-0"
+                        style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)' }}>
+                        {isQuizExpanded
+                            ? <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
+                            : <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />}
+                    </button>
+                </>
             )}
             {activeTab === 'mindmap' && hasDocument && (
                 <button onClick={onGenerateMindMap} disabled={isMindMapping}

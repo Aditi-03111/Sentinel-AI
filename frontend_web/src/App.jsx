@@ -59,6 +59,7 @@ function App() {
   // Suggested prompt prefill
   const [prefill, setPrefill] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quizExpanded, setQuizExpanded] = useState(false);
 
   const handleFileUpload = async (file) => {
     setIsUploading(true);
@@ -169,7 +170,7 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 w-full">
         <Navbar
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={(tab) => { setActiveTab(tab); if (tab !== 'quiz') setQuizExpanded(false); }}
           grade={grade}
           onGradeChange={setGrade}
           onGenerateQuiz={handleGenerateQuiz}
@@ -178,6 +179,8 @@ function App() {
           isSummarizing={isLoadingQuiz}
           isMindMapping={isLoadingMindmap}
           onMenuOpen={() => setMobileMenuOpen(true)}
+          isQuizExpanded={quizExpanded}
+          onToggleQuizExpand={() => setQuizExpanded(v => !v)}
         />
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
@@ -211,6 +214,8 @@ function App() {
                   onRegenerate={handleGenerateQuiz}
                   grade={grade}
                   hasDocument={!!uploadedDoc}
+                  isExpanded={quizExpanded}
+                  onToggleExpand={() => setQuizExpanded(v => !v)}
                 />
               </ErrorBoundary>
             ) : (
@@ -225,12 +230,14 @@ function App() {
             )}
           </div>
 
-          {/* PDF viewer — desktop only */}
-          <PDFViewer
-            pdfUrl={activePdfUrl}
-            activePage={activePage}
-            onClose={() => { setActivePdfUrl(null); setActivePage(null); }}
-          />
+          {/* PDF viewer — desktop only, hidden when quiz is expanded */}
+          {!quizExpanded && (
+            <PDFViewer
+              pdfUrl={activePdfUrl}
+              activePage={activePage}
+              onClose={() => { setActivePdfUrl(null); setActivePage(null); }}
+            />
+          )}
         </div>
       </div>
     </div>

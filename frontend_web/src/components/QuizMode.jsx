@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { AlertCircle, CheckCircle2, XCircle, RefreshCw, Trophy, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertCircle, CheckCircle2, XCircle, RefreshCw, Trophy, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, hasDocument }) {
+export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, hasDocument, isExpanded, onToggleExpand }) {
     const [selected, setSelected] = useState({});
     const [revealed, setRevealed] = useState({});
+    const statsRef = useRef(null);
 
     const handleSelect = (qIdx, option) => {
         if (revealed[qIdx]) return;
@@ -22,6 +23,14 @@ export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, 
         : 0;
     const total = quiz?.questions?.length || 0;
     const allAnswered = total > 0 && Object.keys(revealed).length === total;
+
+    useEffect(() => {
+        if (allAnswered && statsRef.current) {
+            setTimeout(() => {
+                statsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }, [allAnswered]);
 
     if (isLoading) {
         return (
@@ -81,6 +90,13 @@ export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, 
                             className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-xs hover:border-indigo-500/40 transition-colors">
                             <RefreshCw className="w-3.5 h-3.5" /> New Quiz
                         </button>
+                        <button onClick={onToggleExpand}
+                            title={isExpanded ? 'Minimize' : 'Maximize'}
+                            className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-800 border border-slate-700 text-slate-300 hover:border-indigo-500/40 transition-colors">
+                            {isExpanded
+                                ? <Minimize2 className="w-3.5 h-3.5" />
+                                : <Maximize2 className="w-3.5 h-3.5" />}
+                        </button>
                     </div>
                 </div>
 
@@ -136,6 +152,37 @@ export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, 
                             </motion.div>
                         );
                     })}
+                    <AnimatePresence>
+                        {allAnswered && (
+                            <motion.div
+                                ref={statsRef}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 px-6 py-5 flex flex-col items-center gap-3"
+                            >
+                                <Trophy className="w-8 h-8 text-indigo-400" />
+                                <p className="text-base font-bold text-slate-100">Quiz Complete</p>
+                                <div className="flex items-center gap-8">
+                                    <div className="flex flex-col items-center gap-0.5">
+                                        <span className="text-2xl font-extrabold text-indigo-300">{score}/{total}</span>
+                                        <span className="text-xs text-slate-400">Score</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-0.5">
+                                        <span className="text-2xl font-extrabold text-emerald-400">{score}</span>
+                                        <span className="text-xs text-slate-400">Correct</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-0.5">
+                                        <span className="text-2xl font-extrabold text-red-400">{total - score}</span>
+                                        <span className="text-xs text-slate-400">Wrong</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-0.5">
+                                        <span className="text-2xl font-extrabold text-slate-200">{Math.round((score / total) * 100)}%</span>
+                                        <span className="text-xs text-slate-400">Accuracy</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>
