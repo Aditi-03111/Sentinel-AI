@@ -1,23 +1,14 @@
 import chromadb
-from chromadb import Documents, EmbeddingFunction, Embeddings
-from sentence_transformers import SentenceTransformer
+from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 
-# ---------------------------------------------------------------------------
-# Local embedding function using sentence-transformers (no Ollama needed)
-# ---------------------------------------------------------------------------
-_model = SentenceTransformer('all-MiniLM-L6-v2')
-
-
-class LocalEmbeddingFunction(EmbeddingFunction):
-    def __call__(self, input: Documents) -> Embeddings:
-        return _model.encode(list(input)).tolist()
-
+# Lightweight ONNX-based embeddings — no torch, no GPU, ~30MB
+embedding_fn = ONNXMiniLM_L6_V2()
 
 chroma_client = chromadb.Client()
 
 collection = chroma_client.get_or_create_collection(
     name="sentinel_collection",
-    embedding_function=LocalEmbeddingFunction()
+    embedding_function=embedding_fn
 )
 
 
