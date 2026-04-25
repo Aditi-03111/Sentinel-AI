@@ -1,4 +1,4 @@
-# Sentinel AI
+# Devmox
 
 An adaptive AI-powered document learning assistant. Upload any PDF and instantly get grade-adapted answers, document insights, an interactive quiz, and a visual mind map — all powered by a custom RAG engine and Groq/Llama 3.1.
 
