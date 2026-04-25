@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { CheckCircle2, XCircle, RefreshCw, Trophy, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, XCircle, RefreshCw, Trophy, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function QuizMode({ quiz, isLoading, onRegenerate, grade }) {
+export default function QuizMode({ quiz, isLoading, error, onRegenerate, grade, hasDocument }) {
     const [selected, setSelected] = useState({});
     const [revealed, setRevealed] = useState({});
 
@@ -32,11 +32,31 @@ export default function QuizMode({ quiz, isLoading, onRegenerate, grade }) {
         );
     }
 
+    if (error) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
+                <AlertCircle className="w-12 h-12 text-amber-400" />
+                <div>
+                    <p className="text-sm font-semibold text-slate-200 mb-1">Quiz could not be generated</p>
+                    <p className="text-xs text-slate-500 max-w-md">{error}</p>
+                </div>
+                {hasDocument && (
+                    <button onClick={onRegenerate}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition-colors">
+                        <RefreshCw className="w-3.5 h-3.5" /> Try Again
+                    </button>
+                )}
+            </div>
+        );
+    }
+
     if (!quiz || !quiz.questions || quiz.questions.length === 0) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-slate-500">
                 <Trophy className="w-12 h-12 opacity-30" />
-                <p className="text-sm">Upload a document and click "Generate Quiz" to start.</p>
+                <p className="text-sm">
+                    {hasDocument ? 'Click "Generate Quiz" to start.' : 'Upload a document and click "Generate Quiz" to start.'}
+                </p>
             </div>
         );
     }
@@ -44,10 +64,9 @@ export default function QuizMode({ quiz, isLoading, onRegenerate, grade }) {
     return (
         <div className="flex-1 overflow-y-auto px-8 py-6 transition-colors" style={{ background: 'var(--bg-base)' }}>
             <div className="max-w-3xl mx-auto">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-lg font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Quiz · Class {grade}</h2>
+                        <h2 className="text-lg font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Quiz - Class {grade}</h2>
                         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{total} questions based on your document</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -65,7 +84,6 @@ export default function QuizMode({ quiz, isLoading, onRegenerate, grade }) {
                     </div>
                 </div>
 
-                {/* Questions */}
                 <div className="flex flex-col gap-5 pb-8">
                     {quiz.questions.map((q, qIdx) => {
                         const isAnswered = revealed[qIdx];

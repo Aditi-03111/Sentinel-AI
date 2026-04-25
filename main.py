@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,8 +29,31 @@ app.add_middleware(
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+CURRENT_DOCUMENT_PATH = os.path.join(UPLOAD_FOLDER, "current_document.json")
 
 _document_store: dict = {}  # stores full_text, page_count, filename, size, uploaded_at
+
+
+def _save_current_document(document: dict):
+    with open(CURRENT_DOCUMENT_PATH, "w", encoding="utf-8") as file:
+        json.dump(document, file)
+
+
+def _load_current_document():
+    if not os.path.exists(CURRENT_DOCUMENT_PATH):
+        return None
+
+    with open(CURRENT_DOCUMENT_PATH, "r", encoding="utf-8") as file:
+        document = json.load(file)
+
+    _document_store["current"] = document
+    if document.get("docs"):
+        add_documents(document["docs"])
+    return document
+
+
+def _get_current_document():
+    return _document_store.get("current") or _load_current_document()
 
 
 @app.get("/")
@@ -56,12 +80,15 @@ async def upload_pdf(file: UploadFile = File(...)):
     full_text = "\n\n".join(d["text"] for d in docs)
     file_size = os.path.getsize(file_path)
 
-    _document_store["current"] = {
+    document = {
         "full_text": full_text,
         "page_count": len(docs),
-        "filename": file.filename,
+        "filename": filename,
         "size": file_size,
+        "docs": docs,
     }
+    _document_store["current"] = document
+    _save_current_document(document)
 
     return {
         "message": "PDF uploaded and indexed successfully",
@@ -74,7 +101,7 @@ async def upload_pdf(file: UploadFile = File(...)):
 @app.get("/insights")
 def get_insights():
     try:
-        doc = _document_store.get("current")
+        doc = _get_current_document()
         if not doc:
             return {"error": "No document uploaded yet."}
         result = generate_insights(doc["full_text"], doc["page_count"])
@@ -86,7 +113,7 @@ def get_insights():
 @app.get("/mindmap")
 def get_mindmap():
     try:
-        doc = _document_store.get("current")
+        doc = _get_current_document()
         if not doc:
             return {"error": "No document uploaded yet."}
         result = generate_mindmap(doc["full_text"])
@@ -98,7 +125,7 @@ def get_mindmap():
 @app.get("/quiz")
 def get_quiz(grade: int = 10, num_questions: int = 5):
     try:
-        doc = _document_store.get("current")
+        doc = _get_current_document()
         if not doc:
             return {"error": "No document uploaded yet."}
         result = generate_quiz(doc["full_text"], grade=grade, num_questions=num_questions)
@@ -110,6 +137,7 @@ def get_quiz(grade: int = 10, num_questions: int = 5):
 @app.get("/ask")
 def ask_question(question: str, grade: int = 10):
     try:
+        _get_current_document()
         answer, citations = generate_answer(question, grade=grade)
         return {"answer": answer, "citations": citations}
     except Exception as e:

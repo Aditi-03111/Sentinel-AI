@@ -50,6 +50,7 @@ function App() {
   // Quiz
   const [quiz, setQuiz] = useState(null);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
+  const [quizError, setQuizError] = useState('');
 
   // Mind Map
   const [mindmap, setMindmap] = useState(null);
@@ -62,6 +63,7 @@ function App() {
     setIsUploading(true);
     setInsights(null);
     setQuiz(null);
+    setQuizError('');
     setMessages([]);
 
     const formData = new FormData();
@@ -102,11 +104,20 @@ function App() {
   const handleGenerateQuiz = async () => {
     setIsLoadingQuiz(true);
     setQuiz(null);
+    setQuizError('');
     setActiveTab('quiz');
     try {
       const res = await axios.get(`${API_BASE_URL}/quiz`, { params: { grade, num_questions: 5 } });
-      if (!res.data.error) setQuiz(res.data);
-    } catch (_) {}
+      if (res.data.error) {
+        setQuizError(res.data.error);
+      } else if (!res.data.questions || res.data.questions.length === 0) {
+        setQuizError('No quiz questions were generated. Try again after re-uploading the document.');
+      } else {
+        setQuiz(res.data);
+      }
+    } catch (error) {
+      setQuizError(error.response?.data?.error || error.message || 'Failed to generate quiz.');
+    }
     finally { setIsLoadingQuiz(false); }
   };
 
@@ -192,8 +203,10 @@ function App() {
                 <QuizMode
                   quiz={quiz}
                   isLoading={isLoadingQuiz}
+                  error={quizError}
                   onRegenerate={handleGenerateQuiz}
                   grade={grade}
+                  hasDocument={!!uploadedDoc}
                 />
               </ErrorBoundary>
             ) : (
