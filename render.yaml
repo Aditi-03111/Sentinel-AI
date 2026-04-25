@@ -2,14 +2,12 @@ services:
   - type: web
     name: sentinel-ai-backend
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: python -m uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GROQ_API_KEY
         sync: false
       - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: ANONYMIZED_TELEMETRY
-        value: "false"
-      - key: CHROMA_ANONYMIZED_TELEMETRY
-        value: "false"
+        value: 3.11.11
+      - key: ALLOWED_ORIGINS
+        sync: false

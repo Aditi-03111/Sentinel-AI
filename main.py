@@ -12,12 +12,16 @@ from rag_engine import generate_answer, generate_insights, generate_quiz, genera
 
 app = FastAPI()
 
-ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+    if origin.strip()
+] or ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
+    allow_credentials="*" not in ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -33,9 +37,15 @@ def read_root():
     return {"message": "Sentinel Notes API v2", "docs": "http://127.0.0.1:8000/docs"}
 
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    filename = os.path.basename(file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
 
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -55,7 +65,7 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     return {
         "message": "PDF uploaded and indexed successfully",
-        "filename": file.filename,
+        "filename": filename,
         "pages": len(docs),
         "size": file_size,
     }
