@@ -61,6 +61,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quizExpanded, setQuizExpanded] = useState(false);
   const [chatExpanded, setChatExpanded] = useState(false);
+  const [mindmapExpanded, setMindmapExpanded] = useState(false);
 
   const handleFileUpload = async (file) => {
     setIsUploading(true);
@@ -171,7 +172,7 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 w-full">
         <Navbar
           activeTab={activeTab}
-          onTabChange={(tab) => { setActiveTab(tab); if (tab !== 'quiz') setQuizExpanded(false); if (tab !== 'chat') setChatExpanded(false); }}
+          onTabChange={(tab) => { setActiveTab(tab); if (tab !== 'quiz') setQuizExpanded(false); if (tab !== 'chat') setChatExpanded(false); if (tab !== 'mindmap') setMindmapExpanded(false); }}
           grade={grade}
           onGradeChange={setGrade}
           onGenerateQuiz={handleGenerateQuiz}
@@ -186,7 +187,7 @@ function App() {
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            {(insights || isLoadingInsights) && !quizExpanded && !chatExpanded && (
+            {(insights || isLoadingInsights) && !quizExpanded && !chatExpanded && !mindmapExpanded && (
               <InsightsPanel insights={insights} isLoading={isLoadingInsights} />
             )}
 
@@ -228,13 +229,15 @@ function App() {
                   isLoading={isLoadingMindmap}
                   onGenerate={handleGenerateMindmap}
                   hasDocument={!!uploadedDoc}
+                  isExpanded={mindmapExpanded}
+                  onToggleExpand={() => setMindmapExpanded(v => !v)}
                 />
               </ErrorBoundary>
             )}
           </div>
 
-          {/* PDF viewer — desktop only, hidden when quiz or chat is expanded */}
-          {!quizExpanded && !chatExpanded && (
+          {/* PDF viewer — desktop only, hidden when any tab is expanded */}
+          {!quizExpanded && !chatExpanded && !mindmapExpanded && (
             <PDFViewer
               pdfUrl={activePdfUrl}
               activePage={activePage}

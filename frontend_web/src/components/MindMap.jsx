@@ -8,7 +8,7 @@ import {
     MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Loader2, GitBranch } from 'lucide-react';
+import { Loader2, GitBranch, Maximize2, Minimize2 } from 'lucide-react';
 
 function buildLayout(rawNodes, rawEdges) {
     if (!rawNodes || rawNodes.length === 0) return { nodes: [], edges: [] };
@@ -93,7 +93,7 @@ function buildLayout(rawNodes, rawEdges) {
     return { nodes, edges };
 }
 
-export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument }) {
+export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument, isExpanded, onToggleExpand }) {
     const { nodes: initNodes, edges: initEdges } = useMemo(
         () => mindmap ? buildLayout(mindmap.nodes, mindmap.edges) : { nodes: [], edges: [] },
         [mindmap]
@@ -156,9 +156,19 @@ export default function MindMap({ mindmap, isLoading, onGenerate, hasDocument })
                 <Background color="#1e1e2e" gap={24} size={1} />
                 <Controls style={{ background: '#1e1e2e', border: '1px solid #334155', borderRadius: '12px' }} />
             </ReactFlow>
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full border backdrop-blur-sm text-xs font-medium pointer-events-none"
-                style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                {mindmap.central || 'Mind Map'} · {mindmap.nodes.length} concepts
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                <div className="px-4 py-1.5 rounded-full border backdrop-blur-sm text-xs font-medium pointer-events-none"
+                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+                    {mindmap.central || 'Mind Map'} · {mindmap.nodes.length} concepts
+                </div>
+                <button onClick={onToggleExpand}
+                    title={isExpanded ? 'Minimize' : 'Maximize'}
+                    className="w-7 h-7 rounded-full border backdrop-blur-sm flex items-center justify-center hover:border-indigo-500/50 transition-colors"
+                    style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}>
+                    {isExpanded
+                        ? <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
+                        : <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />}
+                </button>
             </div>
         </div>
     );
