@@ -1,8 +1,8 @@
 import chromadb
-from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
+from chromadb.utils import embedding_functions
 
-# Lightweight ONNX-based embeddings — no torch, no GPU, ~30MB
-embedding_fn = ONNXMiniLM_L6_V2()
+# Uses onnxruntime-based MiniLM — no torch, ~50MB
+embedding_fn = embedding_functions.DefaultEmbeddingFunction()
 
 chroma_client = chromadb.Client()
 
@@ -13,7 +13,6 @@ collection = chroma_client.get_or_create_collection(
 
 
 def add_documents(docs):
-    # Clear existing docs so re-uploads don't conflict
     try:
         existing = collection.get()
         if existing["ids"]:
@@ -30,8 +29,4 @@ def add_documents(docs):
 
 
 def query_collection(query, n_results=3):
-    results = collection.query(
-        query_texts=[query],
-        n_results=n_results
-    )
-    return results
+    return collection.query(query_texts=[query], n_results=n_results)
